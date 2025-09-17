@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Secure Encryption App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #2d7ff9;
+            --primary-blue-dark: #155ab6;
+            --sidebar-bg: linear-gradient(135deg, var(--primary-blue) 60%, var(--primary-blue-dark) 100%);
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            background: url('key-bg.jpg') center center/cover no-repeat, linear-gradient(135deg, #fffbe6 0%, #eaf2ff 100%);
+            opacity: 0.92;
+        }
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            min-width: 220px;
+            max-width: 300px;
+            flex-shrink: 0;
+            background: var(--sidebar-bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1em 1em 1em 1em;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.07);
+        }
+        .logo-title {
+            display: flex;
+            align-items: center;
+            gap: 0.7em;
+            margin-bottom: 2em;
+        }
+        .app-title {
+            font-size: 1.4em;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+        .sidebar-info {
+            margin:2em 0 1em 0;
+            font-size:0.98em;
+            line-height:1.5;
+            text-align:left;
+            background: #eaf2ff;
+            color: #155ab6;
+            border-radius:8px;
+            padding:1em;
+            box-shadow: 0 2px 12px #eaf2ff;
+        }
+        .sidebar-footer {
+            margin-top: auto;
+            font-size: 0.98em;
+            color: #eaf2ff;
+            text-align: center;
+            opacity: 0.85;
+        }
+        .container {
+            flex: 1;
+            max-width: none;
+            margin: 0;
+            padding: 2em 2em 2em 2em;
+            display: block;
+        }
+        .card {
+            background: #f8fbff;
+            border-radius: 12px;
+            box-shadow: 0 1px 8px rgba(45,127,249,0.06);
+            padding: 2em 1.5em 1.5em 1.5em;
+            margin-bottom: 2em;
+        }
+        h3 {
+            font-size: 1.35em;
+            font-weight: 700;
+            color: #2d7ff9;
+            margin-bottom: 1em;
+        }
+        label {
+            font-weight: 600;
+            margin-top: 1em;
+            display: block;
+        }
+        textarea, input[type="password"], input[type="text"] {
+            width: 100%;
+            font-size: 1.08em;
+            border-radius: 8px;
+            border: 1px solid #bbb;
+            padding: 1em;
+            margin-bottom: 1em;
+            background: #f8fbff;
+            font-family: 'Inter', Arial, sans-serif;
+            box-sizing: border-box;
+        }
+        .pw-wrapper {
+            display: block;
+            margin-bottom: 1em;
+        }
+        .toggle-pw {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.2em 0.5em;
+        }
+        .actions {
+            display: block;
+            margin-bottom: 1em;
+            background: none !important;
+            box-shadow: none !important;
+        }
+        button {
+            margin-right: 0.5em;
+            margin-top: 0.5em;
+            padding: 0.5em 1.2em;
+            border-radius: 6px;
+            border: none;
+            background: #2d7ff9;
+            color: #fff;
+            box-shadow: 0 2px 8px #2d7ff955;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #155ab6;
+            color: #fff;
+        }
+        .clear-btn, .copy-btn {
+            background: #f8fbff;
+            color: #2d7ff9;
+            border: 1px solid #bbb;
+        }
+        .clear-btn:hover, .copy-btn:hover {
+            background: #eaf2ff;
+        }
+        .output {
+            margin-top: 2em;
+            word-break: break-all;
+            background: #f8fbff;
+            border: 1px solid #eaf2ff;
+            padding: 1.5em;
+            border-radius: 8px;
+            font-size: 1.2em;
+            color: #2d2d2d;
+            min-height: 2em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        @media (max-width: 700px) {
+            .container { max-width: 98vw; padding: 1em; }
+        }
+        /* Center the main card horizontally and vertically in the container */
+        .container > div:first-child {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 40vh;
+        }
+        .container > div:first-child .card {
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        /* Style file input to match the app's modern look */
+        input[type="file"]::-webkit-file-upload-button {
+            background: #2d7ff9;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5em 1.2em;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        input[type="file"]::-webkit-file-upload-button:hover {
+            background: #155ab6;
+        }
+        input[type="file"] {
+            font-size: 1em;
+            color: #2d7ff9;
+            background: #f8fbff;
+            border-radius: 8px;
+            border: 1px solid #bbb;
+            padding: 0.3em 0.5em;
+            margin-top: 0.5em;
+            margin-bottom: 1em;
+            width: auto;
+        }
+        /* For Firefox */
+        input[type="file"]::file-selector-button {
+            background: #2d7ff9;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5em 1.2em;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        input[type="file"]::file-selector-button:hover {
+            background: #155ab6;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <aside class="sidebar">
+        <div class="logo-title">
+            <svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="22" stroke="#2d7ff9" stroke-width="4" fill="#eaf2ff"/>
+                <rect x="14" y="20" width="20" height="14" rx="3" fill="#2d7ff9"/>
+                <rect x="18" y="24" width="12" height="6" rx="2" fill="#fff"/>
+                <circle cx="24" cy="27" r="1.5" fill="#2d7ff9"/>
+                <rect x="20" y="16" width="8" height="6" rx="2" fill="#fff" stroke="#2d7ff9" stroke-width="2"/>
+            </svg>
+            <span class="app-title">Secure Encryption</span>
+        </div>
+        <div class="sidebar-info" style="margin-bottom:1.5em;background:#eaf2ff;color:#155ab6;box-shadow:0 2px 12px #eaf2ff;">
+            <div style="margin-bottom:0.7em;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="10" width="14" height="9" rx="3" fill="#2d7ff9"/><rect x="9" y="6" width="6" height="6" rx="3" fill="#fff" stroke="#2d7ff9" stroke-width="2"/><circle cx="12" cy="15" r="1.2" fill="#fff"/></svg>
+                <span style="font-weight:700;font-size:1.08em;">What is Cryptography?</span>
+            </div>
+            <ul style="margin:0 0 0 1.2em;padding:0;font-size:0.98em;line-height:1.6;">
+                <li><b>Cryptography</b> is the science of securing information by transforming it so only intended recipients can read it.</li>
+                <li><b>Encryption</b> protects your data from unauthorized access, even if intercepted.</li>
+                <li><b>AES-GCM</b> is a modern, fast, and secure encryption standard for data privacy.</li>
+                <li><b>RSA</b> enables secure sharing using public/private key pairs.</li>
+                <li>Never share your password or private key with anyone.</li>
+            </ul>
+        </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="#main">Encrypt/Decrypt</a></li>
+                    <li><a href="#rsa">RSA Key Management</a></li>
+                    <li><a href="#history">History</a></li>
+                </ul>
+            </nav>
+        <div class="sidebar-footer">AES-GCM & RSA Hybrid<br><small>by YourApp</small></div>
+    </aside>
+    <div class="container">
+        <div style="position:relative;margin-bottom:2.5em;">
+            <div class="card glass" style="margin-bottom:2em;padding:1.2em 1.5em;box-shadow:0 2px 12px rgba(45,127,249,0.07);">
+                <div>
+                    <img src="assets/logo.svg" alt="App Logo" width="54" height="54" style="display:block;filter:drop-shadow(0 2px 8px #2d7ff999);border-radius:12px;" />
+                    <span style="font-family:'Inter',Arial,sans-serif;font-size:2.3em;font-weight:800;letter-spacing:1px;color:#2d7ff9;display:inline-block;">Secure Encryption & Decryption</span>
+                </div>
+                <div style="text-align:center;margin-top:1.2em;font-size:1.18em;color:#2d7ff9;font-weight:600;">
+                    Protect your sensitive text and files with modern cryptography.<br>
+                    <span style="color:#155ab6;font-weight:400;font-size:0.98em;">AES-GCM (password) and RSA Hybrid (public key) supported.</span>
+                </div>
+            </div>
+        </div>
+        <section id="main">
+        <div class="card glass" style="margin-bottom:2em;padding:1.2em 1.5em;box-shadow:0 2px 12px rgba(45,127,249,0.07);">
+            <label style="font-weight:700;font-size:1.13em;min-width:170px;">Encryption Method:</label>
+            <select id="encMethod" style="font-size:1.08em;padding:0.5em 1.2em;border-radius:8px;border:1.5px solid #2d7ff9;background:#f8fbff;color:#155ab6;font-weight:600;outline:none;transition:border 0.2s;box-shadow:0 1px 4px #2d7ff911;">
+                <option value="aes">AES-GCM (Password)</option>
+                <option value="rsa">RSA Hybrid (Public Key)</option>
+            </select>
+            <span style="margin-left:1.2em;font-size:1em;color:#2d7ff9;">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;"><circle cx="10" cy="10" r="9" fill="#eaf2ff" stroke="#2d7ff9" stroke-width="2"/><text x="10" y="15" text-anchor="middle" font-size="12" fill="#2d7ff9" font-family="Arial, sans-serif">i</text></svg>
+                <span id="methodHelp">AES-GCM: Fast, secure, password-based. RSA: Share with others using public key.</span>
+            </span>
+        </div>
+    <div class="notif" id="notif"></div>
+    <label>Text to Encrypt/Decrypt:</label>
+    <textarea id="textInput" rows="4" placeholder="Enter text or ciphertext here..."></textarea>
+    <label>Password:</label>
+    <div class="pw-wrapper">
+        <input type="password" id="passwordInput" />
+        <button class="toggle-pw" type="button" onclick="togglePassword()" title="Show/Hide Password">
+            <svg id="eyeIcon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;">
+                <path d="M1 12C2.73 7.61 7.11 4.5 12 4.5C16.89 4.5 21.27 7.61 23 12C21.27 16.39 16.89 19.5 12 19.5C7.11 19.5 2.73 16.39 1 12Z" stroke="#2d7ff9" stroke-width="2"/>
+                <circle cx="12" cy="12" r="3.5" stroke="#2d7ff9" stroke-width="2"/>
+                <circle cx="12" cy="12" r="1.5" fill="#2d7ff9"/>
+            </svg>
+        </button>
+    </div>
+    <div class="actions">
+        <button onclick="encryptText()">Encrypt</button>
+        <button onclick="decryptText()">Decrypt</button>
+        <button class="clear-btn" onclick="clearFields()">Clear</button>
+        <button class="copy-btn" onclick="copyOutput()">Copy Output</button>
+        <button onclick="toggleDarkMode()" style="float:right;">🌙</button>
+    </div>
+    <hr />
+    <label>Or select a file (or drag & drop):</label>
+    <input type="file" id="fileInput" />
+    <div class="actions">
+        <button onclick="encryptFile()">Encrypt File</button>
+        <button onclick="decryptFile()">Decrypt File</button>
+    </div>
+    <div class="output" id="output" ondragover="event.preventDefault()" ondrop="handleDrop(event)"></div>
+        </section>
+        <section id="rsa" style="margin-top:2.5em;">
+            <div class="card">
+                <h3 style="margin-bottom:1em;">RSA Key Management</h3>
+                <div class="rsa-row">
+                    <div class="rsa-col">
+                        <button class="rsa-btn" onclick="generateRSAKeys()">Generate Key Pair</button>
+                        <textarea id="publicKey" class="rsa-keyarea" rows="5" placeholder="Public Key (PEM)"></textarea>
+                        <button class="rsa-copy-btn" onclick="copyKey('publicKey')">Copy Public Key</button>
+                    </div>
+                    <div class="rsa-col">
+                        <textarea id="privateKey" class="rsa-keyarea" rows="5" placeholder="Private Key (PEM)"></textarea>
+                        <button class="rsa-copy-btn" onclick="copyKey('privateKey')">Copy Private Key</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section id="history" style="margin-top:2.5em;">
+            <h3>Session History</h3>
+            <ul id="historyList" style="background:#f4f4f4;padding:1em;border-radius:8px;min-height:2em;"></ul>
+        </section>
+        <section id="info" style="margin-top:2.5em;">
+            <div class="card">
+                <h3>About This App & Cryptography</h3>
+                <p>This app lets you securely encrypt and decrypt text or files using modern cryptography standards. Choose between password-based AES-GCM or RSA hybrid encryption for sharing with others.</p>
+                <ul style="margin-left:1.2em;">
+                    <li><b>AES-GCM</b>: Fast, secure, and provides data integrity. Use a strong password.</li>
+                    <li><b>RSA Hybrid</b>: Encrypts a random key with RSA, then uses AES-GCM for your data. Share your public key, keep your private key safe.</li>
+                    <li>Never share your password or private key with anyone.</li>
+                    <li>All cryptography is performed using the trusted Python <code>cryptography</code> library.</li>
+                </ul>
+                <p style="margin-top:1em; color:#155ab6;">For more details, see the documentation or contact the developer.</p>
+            </div>
+        </section>
+    </div>
+</div>
+<script>
+let historyArr = [];
+
+function updateHistory(action, method, input, output) {
+    historyArr.push({action, method, input, output, time: new Date().toLocaleTimeString()});
+    const list = document.getElementById('historyList');
+    list.innerHTML = historyArr.map(h => `<li><b>${h.action}</b> [${h.method}] at ${h.time}<br><span style='color:#888;'>Input:</span> ${h.input.slice(0,40)}...<br><span style='color:#888;'>Output:</span> ${h.output.slice(0,40)}...</li>`).join('');
+}
+
+function copyKey(id) {
+    const val = document.getElementById(id).value;
+    if (val) {
+        navigator.clipboard.writeText(val);
+        showNotif('Key copied!', 'success');
+    }
+}
+
+async function generateRSAKeys() {
+    const res = await fetch('http://localhost:5000/api/generate_rsa_keys');
+    const data = await res.json();
+    document.getElementById('publicKey').value = data.public_key;
+    document.getElementById('privateKey').value = data.private_key;
+    showNotif('RSA key pair generated!', 'success');
+}
+
+document.getElementById('encMethod').addEventListener('change', function() {
+    const help = document.getElementById('methodHelp');
+    if (this.value === 'aes') {
+        help.textContent = 'AES-GCM: Fast, secure, password-based.';
+    } else {
+        help.textContent = 'RSA: Share with others using public key.';
+    }
+});
+function downloadFile(filename, content) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([content], {type: 'application/octet-stream'}));
+    a.download = filename;
+    a.click();
+}
+
+function showNotif(msg, type) {
+    const notif = document.getElementById('notif');
+    notif.textContent = msg;
+    notif.className = 'notif ' + (type || '');
+    notif.style.display = 'block';
+    setTimeout(() => notif.style.display = 'none', 2500);
+}
+
+function togglePassword() {
+    const pw = document.getElementById('passwordInput');
+    pw.type = pw.type === 'password' ? 'text' : 'password';
+}
+
+function clearFields() {
+    document.getElementById('textInput').value = '';
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('output').textContent = '';
+    document.getElementById('fileInput').value = '';
+    showNotif('Cleared all fields', 'success');
+}
+
+function copyOutput() {
+    const out = document.getElementById('output').textContent;
+    if (out) {
+        navigator.clipboard.writeText(out);
+        showNotif('Output copied!', 'success');
+    } else {
+        showNotif('Nothing to copy', 'error');
+    }
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    const fileInput = document.getElementById('fileInput');
+    if (event.dataTransfer.files.length) {
+        fileInput.files = event.dataTransfer.files;
+        showNotif('File dropped: ' + event.dataTransfer.files[0].name, 'success');
+    }
+}
+
+function isBase64(str) {
+    try {
+        return btoa(atob(str)) === str;
+    } catch (e) { return false; }
+}
+
+async function encryptText() {
+    const text = document.getElementById('textInput').value;
+    const method = document.getElementById('encMethod').value;
+    if (!text) return showNotif('Enter text.', 'error');
+    let res, data;
+    if (method === 'aes') {
+        const password = document.getElementById('passwordInput').value;
+        if (!password) return showNotif('Enter password.', 'error');
+        if (isBase64(text.trim())) {
+            showNotif('Input looks like ciphertext. Try Decrypt.', '');
+        }
+        res = await fetch('http://localhost:5000/api/encrypt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ plaintext: text, password })
+        });
+        data = await res.json();
+    } else {
+        const publicKey = document.getElementById('publicKey').value;
+        if (!publicKey) return showNotif('Paste or generate a public key.', 'error');
+        res = await fetch('http://localhost:5000/api/rsa_encrypt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ plaintext: text, public_key: publicKey })
+        });
+        data = await res.json();
+    }
+    if (data.ciphertext) {
+        document.getElementById('output').textContent = data.ciphertext;
+        showNotif('Text encrypted!', 'success');
+        updateHistory('Encrypt', method.toUpperCase(), text, data.ciphertext);
+    } else {
+        document.getElementById('output').textContent = data.error;
+        showNotif('Encryption failed', 'error');
+    }
+}
+async function decryptText() {
+    const ciphertext = document.getElementById('textInput').value;
+    const method = document.getElementById('encMethod').value;
+    if (!ciphertext) return showNotif('Enter ciphertext.', 'error');
+    let res, data;
+    if (method === 'aes') {
+        const password = document.getElementById('passwordInput').value;
+        if (!password) return showNotif('Enter password.', 'error');
+        if (!isBase64(ciphertext.trim())) {
+            showNotif('Input does not look like ciphertext. Try Encrypt.', '');
+        }
+        res = await fetch('http://localhost:5000/api/decrypt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ciphertext, password })
+        });
+        data = await res.json();
+    } else {
+        const privateKey = document.getElementById('privateKey').value;
+        if (!privateKey) return showNotif('Paste your private key.', 'error');
+        res = await fetch('http://localhost:5000/api/rsa_decrypt', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ciphertext, private_key: privateKey })
+        });
+        data = await res.json();
+    }
+    if (data.plaintext) {
+        document.getElementById('output').textContent = data.plaintext;
+        showNotif('Text decrypted!', 'success');
+        updateHistory('Decrypt', method.toUpperCase(), ciphertext, data.plaintext);
+    } else {
+        document.getElementById('output').textContent = data.error;
+        showNotif('Decryption failed', 'error');
+    }
+}
+
+async function encryptFile() {
+    const fileInput = document.getElementById('fileInput');
+    const password = document.getElementById('passwordInput').value;
+    if (!fileInput.files.length || !password) return alert('Select a file and enter password.');
+    const file = fileInput.files[0];
+    const arrayBuffer = await file.arrayBuffer();
+    const res = await fetch('http://localhost:5000/api/encrypt_file', {
+        method: 'POST',
+        body: JSON.stringify({
+            filename: file.name,
+            filedata: Array.from(new Uint8Array(arrayBuffer)),
+            password
+        }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.ciphertext) {
+        downloadFile(file.name + '.enc', data.ciphertext);
+        document.getElementById('output').textContent = 'File encrypted and downloaded.';
+    } else {
+        document.getElementById('output').textContent = data.error;
+    }
+}
+
+async function decryptFile() {
+    const fileInput = document.getElementById('fileInput');
+    const password = document.getElementById('passwordInput').value;
+    if (!fileInput.files.length || !password) return alert('Select a file and enter password.');
+    const file = fileInput.files[0];
+    const arrayBuffer = await file.arrayBuffer();
+    const res = await fetch('http://localhost:5000/api/decrypt_file', {
+        method: 'POST',
+        body: JSON.stringify({
+            filename: file.name,
+            filedata: Array.from(new Uint8Array(arrayBuffer)),
+            password
+        }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (data.plainfile) {
+        downloadFile(data.filename || 'decrypted', new Uint8Array(data.plainfile));
+        document.getElementById('output').textContent = 'File decrypted and downloaded.';
+    } else {
+        document.getElementById('output').textContent = data.error;
+    }
+}
+</script>
+</body>
+</html>
