@@ -1,0 +1,14 @@
+[build]
+  publish = "frontend"
+  command = "echo 'No build command needed for static site'"
+
+[[redirects]]
+  from = "/*"
+  to = "/clean_encryption_app.html"
+  status = 200
+  force = false
+  
+[dev]
+  command = "python backend/app.py"
+  targetPort = 5000
+  publish = "frontend"

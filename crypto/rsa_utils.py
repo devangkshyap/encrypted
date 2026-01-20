@@ -1,7 +1,7 @@
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-import os, base64, json
+import os, base64, json, hashlib
 
 RSA_KEY_SIZE = 2048
 AES_KEY_SIZE = 32
@@ -57,3 +57,70 @@ def hybrid_decrypt(encoded: str, private_pem: str) -> bytes:
     ciphertext = base64.b64decode(out['ciphertext'])
     aesgcm = AESGCM(aes_key)
     return aesgcm.decrypt(nonce, ciphertext, None)
+
+
+# --- Digital Signatures (NEW) ---
+def sign_message(message: str, private_pem: str) -> str:
+    """Sign a message using RSA private key with SHA-256."""
+    private_key = serialization.load_pem_private_key(private_pem.encode(), password=None)
+    message_bytes = message.encode() if isinstance(message, str) else message
+    signature = private_key.sign(
+        message_bytes,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256()
+    )
+    return base64.b64encode(signature).decode()
+
+
+def verify_signature(message: str, signature: str, public_pem: str) -> bool:
+    """Verify a signature using RSA public key."""
+    try:
+        public_key = serialization.load_pem_public_key(public_pem.encode())
+        message_bytes = message.encode() if isinstance(message, str) else message
+        signature_bytes = base64.b64decode(signature)
+        public_key.verify(
+            signature_bytes,
+            message_bytes,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+        )
+        return True
+    except Exception:
+        return False
+
+
+# --- Key Fingerprinting (NEW) ---
+def compute_key_fingerprint(public_pem: str) -> str:
+    """Compute SHA-256 fingerprint of public key for verification."""
+    key_bytes = public_pem.encode()
+    fingerprint = hashlib.sha256(key_bytes).digest()
+    return base64.b64encode(fingerprint).decode()
+
+
+def hybrid_encrypt_with_fingerprint(plaintext: bytes, public_pem: str) -> dict:
+    """Hybrid encrypt and include public key fingerprint in envelope."""
+    encrypted = hybrid_encrypt(plaintext, public_pem)
+    fingerprint = compute_key_fingerprint(public_pem)
+    
+    out = json.loads(base64.b64decode(encrypted).decode())
+    out['key_fingerprint'] = fingerprint
+    
+    return base64.b64encode(json.dumps(out).encode()).decode()
+
+
+def verify_key_fingerprint(encrypted: str, expected_fingerprint: str) -> bool:
+    """Verify that the encrypted envelope matches the expected public key fingerprint."""
+    try:
+        out = json.loads(base64.b64decode(encrypted).decode())
+        stored_fingerprint = out.get('key_fingerprint', '')
+        return stored_fingerprint == expected_fingerprint
+    except Exception:
+        return False
+
+
